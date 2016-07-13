@@ -1,0 +1,54 @@
+<?xml version="1.0"?> <!-- -*- sgml -*- -->
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+  "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+
+<chapter id="tg-manual" xreflabel="Tracegen">
+
+<title>Tracegen: Generate instruction and data traces</title>
+
+<para>To use this tool, you must specify
+<option>--tool=tracegen</option> on the Valgrind
+command line.</para>
+
+
+<sect1 id="tg-manual.overview" xreflabel="Overview">
+<title>Overview</title>
+
+<para>Generate program and data traces in CTF format.</para>
+
+</sect1>
+
+
+<sect1 id="tg-manual.options" xreflabel="Tracegen Command-line Options">
+<title>Tracegen Command-line Options</title>
+
+<para>Tracegen-specific command-line options are:</para>
+
+<!-- start of xi:include in the manpage -->
+<variablelist id="lk.opts.list">
+  <varlistentry id="opt.trace-mem" xreflabel="--trace-mem">
+    <term>
+      <option><![CDATA[--trace-mem=<no|yes> [default: no] ]]></option>
+    </term>
+    <listitem>
+      <para>Generate data and program trace (the purpose of this tool). 
+        Generates huge amounts of data.</para>
+    </listitem>
+  </varlistentry>
+
+  <varlistentry id="opt.fnname" xreflabel="--fnname">
+    <term>
+      <option><![CDATA[--fnname=<name> [default: main] ]]></option>
+    </term>
+    <listitem>
+      <para>Changes the function for which calls are counted when
+      <option>--basic-counts=yes</option> is specified.</para>
+    </listitem>
+  </varlistentry>
+
+</variablelist>
+<!-- end of xi:include in the manpage -->
+
+</sect1>
+
+</chapter>
