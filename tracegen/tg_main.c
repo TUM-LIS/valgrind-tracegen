@@ -177,6 +177,7 @@
 #include "pub_tool_libcbase.h"
 #include "pub_tool_options.h"
 #include "pub_tool_machine.h"     // VG_(fnptr_to_fnentry)
+#include "pub_tool_threadstate.h" // VG_(get_running_tid)()
 
 #include "tg_ctf.h"
 #include "tg_ctf-platform-valgrind.h"
@@ -271,6 +272,7 @@ typedef
       IRAtom*    addr;
       Int        size;
       IRAtom*    guard; /* :: Ity_I1, or NULL=="always True" */
+      ThreadId   tid;
    }
    Event;
 
@@ -311,24 +313,24 @@ static Event events[N_EVENTS];
 static Int   events_used = 0;
 
 
-static VG_REGPARM(2) void trace_instr(Addr addr, SizeT size)
+static VG_REGPARM(3) void trace_instr(Addr addr, SizeT size, ThreadId tid)
 {
-   tg_ctf_default_trace_instr(ctf_ctx, addr);
+   tg_ctf_default_trace_instr(ctf_ctx, tid, addr);
 }
 
-static VG_REGPARM(2) void trace_load(Addr addr, SizeT size)
+static VG_REGPARM(3) void trace_load(Addr addr, SizeT size, ThreadId tid)
 {
-    tg_ctf_default_trace_mem(ctf_ctx, 0 /* read */, addr, size);
+    tg_ctf_default_trace_mem(ctf_ctx, tid, 0 /* read */, addr, size);
 }
 
-static VG_REGPARM(2) void trace_store(Addr addr, SizeT size)
+static VG_REGPARM(3) void trace_store(Addr addr, SizeT size, ThreadId tid)
 {
-    tg_ctf_default_trace_mem(ctf_ctx, 1 /* write */, addr, size);
+    tg_ctf_default_trace_mem(ctf_ctx, tid, 1 /* write */, addr, size);
 }
 
-static VG_REGPARM(2) void trace_modify(Addr addr, SizeT size)
+static VG_REGPARM(3) void trace_modify(Addr addr, SizeT size, ThreadId tid)
 {
-    tg_ctf_default_trace_mem(ctf_ctx, 2 /* modify */, addr, size);
+    tg_ctf_default_trace_mem(ctf_ctx, tid, 2 /* modify */, addr, size);
 }
 
 
@@ -363,8 +365,8 @@ static void flushEvents(IRSB* sb)
       }
 
       // Add the helper.
-      argv = mkIRExprVec_2( ev->addr, mkIRExpr_HWord( ev->size ) );
-      di   = unsafeIRDirty_0_N( /*regparms*/2,
+      argv = mkIRExprVec_3( ev->addr, mkIRExpr_HWord( ev->size ), mkIRExpr_HWord(ev->tid) );
+      di   = unsafeIRDirty_0_N( /*regparms*/3,
                                 helperName, VG_(fnptr_to_fnentry)( helperAddr ),
                                 argv );
       if (ev->guard) {
@@ -395,6 +397,7 @@ static void addEvent_Ir ( IRSB* sb, IRAtom* iaddr, UInt isize )
    evt->addr  = iaddr;
    evt->size  = isize;
    evt->guard = NULL;
+   evt->tid   = VG_(get_running_tid)();
    events_used++;
 }
 
@@ -414,6 +417,7 @@ void addEvent_Dr_guarded ( IRSB* sb, IRAtom* daddr, Int dsize, IRAtom* guard )
    evt->addr  = daddr;
    evt->size  = dsize;
    evt->guard = guard;
+   evt->tid   = VG_(get_running_tid)();
    events_used++;
 }
 
@@ -441,6 +445,7 @@ void addEvent_Dw_guarded ( IRSB* sb, IRAtom* daddr, Int dsize, IRAtom* guard )
    evt->addr  = daddr;
    evt->size  = dsize;
    evt->guard = guard;
+   evt->tid   = VG_(get_running_tid)();
    events_used++;
 }
 
@@ -477,6 +482,7 @@ void addEvent_Dw ( IRSB* sb, IRAtom* daddr, Int dsize )
    evt->size  = dsize;
    evt->addr  = daddr;
    evt->guard = NULL;
+   evt->tid   = VG_(get_running_tid)();
    events_used++;
 }
 

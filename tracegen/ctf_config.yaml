@@ -32,6 +32,11 @@ metadata:
         class: struct
         fields:
           id: uint16
+      event-context-type:
+        class: struct
+        fields:
+          tid: uint64
+
       events:
         instr:
           payload-type:
