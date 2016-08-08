@@ -23,18 +23,21 @@ To generate a data and program trace from `YOUR_APPLICATION`, run
 
 ~~~
 mkdir cts-out # you need to create the output directory first
-inst/bin/valgrind --tool=tracegen --trace-mem --output-dir=cts-out YOUR_APPLICATION
+inst/bin/valgrind --tool=tracegen --trace-mem=yes --output-dir=cts-out YOUR_APPLICATION
 ~~~
 
 ## Viewing the trace
 You can use any CTS-enabled trace viewer, the most basic one is babeltrace.
 
 It's packaged on Ubuntu, install with
+
 ~~~
 sudo apt-get install babeltrace
 ~~~
 
-To get a text log of all traced events, run
+To get a text log of all traced events, run babeltrace with the directory
+containing the stream and metadata files as parameter.
+
 ~~~
 babeltrace cts-out
 ~~~
